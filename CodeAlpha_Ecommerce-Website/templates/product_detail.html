@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} - IndianKart{% endblock %}
+
+{% block content %}
+
+<!-- Product Detail Card -->
+<div class="product-detail-layout">
+  <!-- Image Gallery -->
+  <div class="detail-gallery">
+    <img src="{{ product.image }}" alt="{{ product.name }}" class="detail-main-img">
+  </div>
+
+  <!-- Detail Info -->
+  <div class="detail-info">
+    <span class="detail-category">{{ product.category.icon }} {{ product.category.name }}</span>
+    <h1 class="detail-title">{{ product.name }}</h1>
+
+    <!-- Rating -->
+    <div class="product-rating" style="margin-bottom: 12px;">
+      <span class="rating-badge" style="font-size: 0.85rem; padding: 4px 8px;">★ {{ product.rating }}</span>
+      <span class="rating-count" style="font-size: 0.9rem;">({{ product.num_ratings }} customer ratings across India)</span>
+    </div>
+
+    <!-- Price Box -->
+    <div class="detail-price-box">
+      <span class="detail-current-price">₹{{ product.price|floatformat:0 }}</span>
+      {% if product.original_price %}
+        <span class="detail-original-price">₹{{ product.original_price|floatformat:0 }}</span>
+        <span class="detail-discount">{{ product.discount_percentage }}% OFF</span>
+      {% endif %}
+    </div>
+
+    <!-- Indian Delivery Perks -->
+    <div class="detail-delivery-perks">
+      <div class="perk-item">
+        <span>🚚</span>
+        <span>Delivery available across 25,000+ PIN codes in India</span>
+      </div>
+      <div class="perk-item">
+        <span>📅</span>
+        <span>Usually delivered within 3–7 business days</span>
+      </div>
+      <div class="perk-item">
+        <span>💵</span>
+        <span>Cash on Delivery (COD) & Pay on Delivery available</span>
+      </div>
+      <div class="perk-item">
+        <span>🔄</span>
+        <span>7 Days Easy Doorstep Replacement / Return</span>
+      </div>
+    </div>
+
+    <!-- Stock Status -->
+    <div style="margin-bottom: 16px; font-weight: 600; font-size: 0.95rem;">
+      {% if product.stock > 0 %}
+        <span style="color: var(--green-success);">✓ In Stock ({{ product.stock }} units left)</span>
+      {% else %}
+        <span style="color: var(--red-discount);">✕ Currently Out of Stock</span>
+      {% endif %}
+    </div>
+
+    <!-- Description -->
+    <p class="detail-description">
+      {{ product.description }}
+    </p>
+
+    <!-- Quantity & Actions Form -->
+    <form action="{% url 'cart_add' product.id %}" method="POST">
+      {% csrf_token %}
+      <div class="qty-selector">
+        <label for="quantity">Quantity:</label>
+        <div class="qty-controls">
+          <button type="button" class="qty-btn minus">-</button>
+          <input type="number" name="quantity" id="quantity" value="1" min="1" max="{{ product.stock }}" class="qty-input">
+          <button type="button" class="qty-btn plus">+</button>
+        </div>
+      </div>
+
+      <div class="action-buttons-group">
+        <button type="submit" name="next" value="cart" class="btn btn-primary btn-lg" style="flex: 1;">
+          🛒 Add to Cart
+        </button>
+        <button type="submit" name="next" value="checkout" class="btn btn-lg" style="flex: 1; background-color: var(--navy-dark); color: #FFFFFF;">
+          ⚡ Buy Now
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Related Products -->
+{% if related_products %}
+  <section style="margin-top: 40px;">
+    <div class="section-header">
+      <h2 class="section-title">More Items in {{ product.category.name }}</h2>
+    </div>
+
+    <div class="product-grid">
+      {% for rel in related_products %}
+        <div class="product-card">
+          <div class="card-image-wrap">
+            <img src="{{ rel.image }}" alt="{{ rel.name }}" class="product-img" loading="lazy">
+            {% if rel.discount_percentage > 0 %}
+              <span class="discount-tag">{{ rel.discount_percentage }}% OFF</span>
+            {% endif %}
+          </div>
+          <div class="card-body">
+            <h3 class="product-title">{{ rel.name }}</h3>
+            <div class="price-row">
+              <span class="current-price">₹{{ rel.price|floatformat:0 }}</span>
+              {% if rel.original_price %}
+                <span class="original-price">₹{{ rel.original_price|floatformat:0 }}</span>
+              {% endif %}
+            </div>
+            <div class="card-actions">
+              <a href="{% url 'product_detail' rel.id %}" class="btn btn-secondary btn-block">View Details</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}
+
+{% endblock %}

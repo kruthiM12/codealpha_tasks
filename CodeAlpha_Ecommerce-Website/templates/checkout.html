@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout - IndianKart{% endblock %}
+
+{% block content %}
+
+<div class="section-header" style="margin-bottom: 20px;">
+  <h1 class="section-title">📦 Indian Address & Checkout</h1>
+</div>
+
+<form method="POST" action="{% url 'checkout' %}">
+  {% csrf_token %}
+
+  <div class="checkout-layout">
+    <!-- Left Column: Shipping Address & Payment -->
+    <div>
+      <!-- Customer Information -->
+      <div class="form-section">
+        <h2 class="form-section-title">👤 Customer Details</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="id_full_name">Full Name *</label>
+            {{ form.full_name }}
+            {% if form.full_name.errors %}
+              <span class="field-error">{{ form.full_name.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="id_phone">Mobile Phone Number *</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}
+              <span class="field-error">{{ form.phone.errors.0 }}</span>
+            {% endif %}
+            <span style="font-size: 0.75rem; color: var(--text-muted);">10-digit Indian mobile number (e.g. 9876543210)</span>
+          </div>
+
+          <div class="form-group full-width">
+            <label for="id_email">Email Address *</label>
+            {{ form.email }}
+            {% if form.email.errors %}
+              <span class="field-error">{{ form.email.errors.0 }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Indian Shipping Address -->
+      <div class="form-section">
+        <h2 class="form-section-title">📍 Delivery Address</h2>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label for="id_address">Flat / House No., Building Name, Street / Area *</label>
+            {{ form.address }}
+            {% if form.address.errors %}
+              <span class="field-error">{{ form.address.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group full-width">
+            <label for="id_landmark">Landmark (Optional)</label>
+            {{ form.landmark }}
+            {% if form.landmark.errors %}
+              <span class="field-error">{{ form.landmark.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="id_city">City / District *</label>
+            {{ form.city }}
+            {% if form.city.errors %}
+              <span class="field-error">{{ form.city.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="id_state">State *</label>
+            {{ form.state }}
+            {% if form.state.errors %}
+              <span class="field-error">{{ form.state.errors.0 }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="id_pincode">6-Digit PIN Code *</label>
+            {{ form.pincode }}
+            {% if form.pincode.errors %}
+              <span class="field-error">{{ form.pincode.errors.0 }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="form-section">
+        <h2 class="form-section-title">💳 Select Payment Method</h2>
+
+        <div class="payment-methods-grid">
+          <label class="payment-option-card">
+            <input type="radio" name="payment_method" value="COD" checked>
+            <div class="payment-info">
+              <span class="payment-title">💵 Cash on Delivery (COD)</span>
+              <span class="payment-desc">Pay cash or UPI scan at your door upon delivery</span>
+            </div>
+          </label>
+
+          <label class="payment-option-card">
+            <input type="radio" name="payment_method" value="UPI">
+            <div class="payment-info">
+              <span class="payment-title">📱 Instant UPI (GPay / PhonePe / Paytm / BHIM)</span>
+              <span class="payment-desc">Fast, secure 1-click UPI payment simulation</span>
+            </div>
+          </label>
+
+          <label class="payment-option-card">
+            <input type="radio" name="payment_method" value="CARD">
+            <div class="payment-info">
+              <span class="payment-title">💳 Credit / Debit Card</span>
+              <span class="payment-desc">Visa, Mastercard, RuPay cards accepted</span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Order Summary -->
+    <div>
+      <div class="summary-card" style="position: sticky; top: 80px;">
+        <h3 class="summary-title">Order Items ({{ cart_data.item_count }})</h3>
+
+        <div style="max-height: 240px; overflow-y: auto; margin-bottom: 16px; border-bottom: 1px solid var(--border-light); padding-bottom: 12px;">
+          {% for item in cart_data.cart_items %}
+            <div style="display: flex; gap: 10px; margin-bottom: 10px; align-items: center;">
+              <img src="{{ item.product.image }}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border-light);">
+              <div style="flex: 1; font-size: 0.85rem;">
+                <div style="font-weight: 600; line-height: 1.2;">{{ item.product.name }}</div>
+                <div style="color: var(--text-muted);">Qty: {{ item.quantity }} × ₹{{ item.product.price|floatformat:0 }}</div>
+              </div>
+              <div style="font-weight: 700; font-size: 0.9rem;">₹{{ item.item_total|floatformat:0 }}</div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>₹{{ cart_data.subtotal|floatformat:0 }}</span>
+        </div>
+
+        <div class="summary-row">
+          <span>Delivery Charges:</span>
+          {% if cart_data.delivery_fee == 0 %}
+            <span style="color: var(--green-success); font-weight: 700;">FREE</span>
+          {% else %}
+            <span>₹{{ cart_data.delivery_fee|floatformat:0 }}</span>
+          {% endif %}
+        </div>
+
+        {% if cart_data.discount > 0 %}
+          <div class="summary-row discount">
+            <span>Festive Discount:</span>
+            <span>-₹{{ cart_data.discount|floatformat:0 }}</span>
+          </div>
+        {% endif %}
+
+        <div class="summary-row summary-total">
+          <span>Amount Payable:</span>
+          <span style="color: var(--primary-saffron);">₹{{ cart_data.total|floatformat:0 }}</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 20px; font-size: 1.05rem;">
+          Place Order & Pay ₹{{ cart_data.total|floatformat:0 }}
+        </button>
+
+        <p style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-top: 12px;">
+          By placing your order, you agree to IndianKart's Terms of Service & Privacy Policy.
+        </p>
+      </div>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

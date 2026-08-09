@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Account Login - IndianKart{% endblock %}
+
+{% block content %}
+
+<div style="max-width: 440px; margin: 40px auto; background: #FFFFFF; padding: 32px; border-radius: var(--radius-lg); border: 1px solid var(--border-light); box-shadow: var(--shadow-md);">
+  <div style="text-align: center; margin-bottom: 24px;">
+    <span style="font-size: 2.5rem;">🇮🇳</span>
+    <h1 style="font-size: 1.6rem; font-weight: 800; color: var(--navy-dark); margin-top: 8px;">Welcome Back</h1>
+    <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">Login to manage your orders, cart, and delivery addresses.</p>
+  </div>
+
+  <form method="POST" action="{% url 'login' %}">
+    {% csrf_token %}
+
+    <div class="form-group" style="margin-bottom: 16px;">
+      <label for="login_input">Email Address or Username</label>
+      <input type="text" name="login_input" id="login_input" class="form-input" placeholder="e.g. rahul.sharma@example.com" required autofocus>
+    </div>
+
+    <div class="form-group" style="margin-bottom: 20px;">
+      <label for="password">Password</label>
+      <input type="password" name="password" id="password" class="form-input" placeholder="Enter your password" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block btn-lg" style="font-size: 1rem;">
+      🔑 Login to IndianKart
+    </button>
+  </form>
+
+  <div style="margin-top: 24px; text-align: center; font-size: 0.9rem; color: var(--text-muted); border-top: 1px solid var(--border-light); padding-top: 16px;">
+    New to IndianKart? <a href="{% url 'register' %}" style="color: var(--primary-saffron); font-weight: 700;">Create an Account</a>
+  </div>
+
+  <!-- Demo Account Quick Tip -->
+  <div style="margin-top: 20px; background-color: #FFF7ED; border: 1px dashed var(--primary-saffron); padding: 12px; border-radius: var(--radius-sm); font-size: 0.82rem; color: #9A3412;">
+    <strong>Demo Student Credentials:</strong><br>
+    Username: <code>rahul</code> &nbsp;|&nbsp; Password: <code>Password123</code>
+  </div>
+</div>
+
+{% endblock %}

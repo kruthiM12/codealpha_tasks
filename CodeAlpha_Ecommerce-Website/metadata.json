@@ -1,0 +1,6 @@
+{
+  "name": "IndianKart",
+  "description": "Simple Indian E-commerce Store built with Django, SQLite and Python",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

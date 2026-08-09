@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shop All Products - IndianKart{% endblock %}
+
+{% block content %}
+
+<div class="section-header" style="margin-bottom: 16px;">
+  <div>
+    <h1 class="section-title">
+      {% if selected_category %}
+        {{ selected_category.icon }} {{ selected_category.name }}
+      {% elif query %}
+        Search Results for "{{ query }}"
+      {% else %}
+        All Products
+      {% endif %}
+    </h1>
+    <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">
+      Showing {{ total_count }} product{{ total_count|pluralize }}
+    </p>
+  </div>
+</div>
+
+<div class="products-layout">
+  <!-- Filters Sidebar -->
+  <aside class="filters-sidebar">
+    <form method="GET" action="{% url 'products' %}">
+      {% if query %}
+        <input type="hidden" name="q" value="{{ query }}">
+      {% endif %}
+
+      <!-- Category Filter -->
+      <div class="filter-group">
+        <h3 class="filter-title">Categories</h3>
+        <ul class="filter-list">
+          <li>
+            <a href="{% url 'products' %}{% if query %}?q={{ query }}{% endif %}" class="filter-link {% if not selected_category %}active{% endif %}">
+              All Categories
+            </a>
+          </li>
+          {% for cat in categories %}
+            <li>
+              <a href="{% url 'products' %}?category={{ cat.slug }}{% if query %}&q={{ query }}{% endif %}" class="filter-link {% if selected_category.slug == cat.slug %}active{% endif %}">
+                <span>{{ cat.icon }} {{ cat.name }}</span>
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <!-- Price Filter -->
+      <div class="filter-group">
+        <h3 class="filter-title">Price Filter (₹)</h3>
+        {% if selected_category %}
+          <input type="hidden" name="category" value="{{ selected_category.slug }}">
+        {% endif %}
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="number" name="min_price" placeholder="Min ₹" value="{{ min_price }}" class="form-input" style="padding: 6px 10px; font-size: 0.85rem;">
+          <input type="number" name="max_price" placeholder="Max ₹" value="{{ max_price }}" class="form-input" style="padding: 6px 10px; font-size: 0.85rem;">
+        </div>
+        <button type="submit" class="btn btn-secondary btn-block" style="font-size: 0.85rem; padding: 6px;">Apply Price</button>
+      </div>
+
+      <!-- Sorting -->
+      <div class="filter-group">
+        <h3 class="filter-title">Sort By</h3>
+        <select name="sort" class="form-select" onchange="this.form.submit()" style="width: 100%; font-size: 0.88rem;">
+          <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+          <option value="price_low_high" {% if sort_by == 'price_low_high' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_high_low" {% if sort_by == 'price_high_low' %}selected{% endif %}>Price: High to Low</option>
+          <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Highest Customer Rating</option>
+        </select>
+      </div>
+
+      <a href="{% url 'products' %}" class="btn btn-secondary btn-block" style="margin-top: 10px; font-size: 0.85rem; text-align: center;">Reset All Filters</a>
+    </form>
+  </aside>
+
+  <!-- Product Listing Grid -->
+  <div>
+    {% if products %}
+      <div class="product-grid">
+        {% for product in products %}
+          <div class="product-card">
+            <div class="card-image-wrap">
+              <img src="{{ product.image }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+              {% if product.discount_percentage > 0 %}
+                <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
+              {% endif %}
+              <span class="category-tag">{{ product.category.name }}</span>
+            </div>
+            <div class="card-body">
+              <h3 class="product-title" title="{{ product.name }}">{{ product.name }}</h3>
+              <div class="product-rating">
+                <span class="rating-badge">★ {{ product.rating }}</span>
+                <span class="rating-count">({{ product.num_ratings }})</span>
+              </div>
+              <div class="price-row">
+                <span class="current-price">₹{{ product.price|floatformat:0 }}</span>
+                {% if product.original_price %}
+                  <span class="original-price">₹{{ product.original_price|floatformat:0 }}</span>
+                {% endif %}
+              </div>
+              <div class="card-actions">
+                <a href="{% url 'product_detail' product.id %}" class="btn btn-secondary">Details</a>
+                <button data-product-id="{{ product.id }}" class="btn btn-primary btn-add-to-cart-ajax">🛒 Add</button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination -->
+      {% if products.has_other_pages %}
+        <div style="display: flex; justify-content: center; gap: 8px; margin-top: 24px;">
+          {% if products.has_previous %}
+            <a href="?page={{ products.previous_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if query %}&q={{ query }}{% endif %}" class="btn btn-secondary">
+              &laquo; Previous
+            </a>
+          {% endif %}
+
+          <span class="btn btn-secondary" style="background-color: var(--navy-header); color: #FFF; border-color: var(--navy-header);">
+            Page {{ products.number }} of {{ products.paginator.num_pages }}
+          </span>
+
+          {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}{% if selected_category %}&category={{ selected_category.slug }}{% endif %}{% if query %}&q={{ query }}{% endif %}" class="btn btn-secondary">
+              Next &raquo;
+            </a>
+          {% endif %}
+        </div>
+      {% endif %}
+
+    {% else %}
+      <div style="background: #FFFFFF; padding: 40px; border-radius: var(--radius-md); text-align: center; border: 1px solid var(--border-light);">
+        <p style="font-size: 2.5rem; margin-bottom: 12px;">🔍</p>
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px;">No products found</h3>
+        <p style="color: var(--text-muted); margin-bottom: 20px;">We couldn't find any items matching your criteria.</p>
+        <a href="{% url 'products' %}" class="btn btn-primary">Browse All Products</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

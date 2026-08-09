@@ -1,0 +1,146 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}IndianKart - Great Deals, Delivered Across India{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero-banner">
+  <div class="hero-text">
+    <span class="hero-badge">Monsoon Sale</span>
+    <h1>Up to 40% Off on<br><span style="color: var(--primary-saffron);">Ethnic Wear</span> & Everyday Essentials</h1>
+    <p>Shop local, shop smart! Discover authentic Indian kurtas, kirana items, cookware, and popular electronics at unbeatable prices.</p>
+    <a href="{% url 'products' %}" class="hero-btn">Shop Now &rarr;</a>
+  </div>
+  <div class="hero-stats">
+    <div class="stat-box">
+      <div class="num">100%</div>
+      <div class="label">Authentic Items</div>
+    </div>
+    <div class="stat-box">
+      <div class="num">₹499+</div>
+      <div class="label">Free Shipping</div>
+    </div>
+    <div class="stat-box">
+      <div class="num">24/7</div>
+      <div class="label">COD & UPI</div>
+    </div>
+  </div>
+</section>
+
+<!-- Indian Highlights Banner -->
+<section class="indian-features-grid">
+  <div class="feature-box">
+    <div class="feature-icon">🚚</div>
+    <div class="feature-info">
+      <h4>Fast Delivery Across India</h4>
+      <p>Delivering to 25,000+ PIN codes within 3–7 business days.</p>
+    </div>
+  </div>
+  <div class="feature-box">
+    <div class="feature-icon">💵</div>
+    <div class="feature-info">
+      <h4>Cash on Delivery Available</h4>
+      <p>Pay at your doorstep with cash or GPay/PhonePe scan.</p>
+    </div>
+  </div>
+  <div class="feature-box">
+    <div class="feature-icon">🔄</div>
+    <div class="feature-info">
+      <h4>Easy 7-Day Returns</h4>
+      <p>Hassle-free replacement or doorstep return pickup.</p>
+    </div>
+  </div>
+  <div class="feature-box">
+    <div class="feature-icon">🛡️</div>
+    <div class="feature-info">
+      <h4>100% Secure Payments</h4>
+      <p>Encrypted checkout via UPI, Cards, and Net Banking.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Products Section -->
+<section>
+  <div class="section-header">
+    <h2 class="section-title">Featured Products</h2>
+    <a href="{% url 'products' %}" class="view-all-link">View All Products &rarr;</a>
+  </div>
+
+  <div class="product-grid">
+    {% for product in featured_products %}
+      <div class="product-card">
+        <div class="card-image-wrap">
+          <img src="{{ product.image }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+          {% if product.discount_percentage > 0 %}
+            <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
+          {% endif %}
+          <span class="category-tag">{{ product.category.name }}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="product-title" title="{{ product.name }}">{{ product.name }}</h3>
+          <div class="product-rating">
+            <span class="rating-badge">★ {{ product.rating }}</span>
+            <span class="rating-count">({{ product.num_ratings }})</span>
+          </div>
+          <div class="price-row">
+            <span class="current-price">₹{{ product.price|floatformat:0 }}</span>
+            {% if product.original_price %}
+              <span class="original-price">₹{{ product.original_price|floatformat:0 }}</span>
+            {% endif %}
+          </div>
+          <div class="card-actions">
+            <a href="{% url 'product_detail' product.id %}" class="btn btn-secondary">Details</a>
+            <button data-product-id="{{ product.id }}" class="btn btn-primary btn-add-to-cart-ajax">🛒 Add</button>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No featured products available right now.</p>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Popular Products Section -->
+<section style="margin-top: 40px;">
+  <div class="section-header">
+    <h2 class="section-title">Popular Items Across India</h2>
+    <a href="{% url 'products' %}" class="view-all-link">View All Products &rarr;</a>
+  </div>
+
+  <div class="product-grid">
+    {% for product in popular_products %}
+      <div class="product-card">
+        <div class="card-image-wrap">
+          <img src="{{ product.image }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+          {% if product.discount_percentage > 0 %}
+            <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
+          {% endif %}
+          <span class="category-tag">{{ product.category.name }}</span>
+        </div>
+        <div class="card-body">
+          <h3 class="product-title" title="{{ product.name }}">{{ product.name }}</h3>
+          <div class="product-rating">
+            <span class="rating-badge">★ {{ product.rating }}</span>
+            <span class="rating-count">({{ product.num_ratings }})</span>
+          </div>
+          <div class="price-row">
+            <span class="current-price">₹{{ product.price|floatformat:0 }}</span>
+            {% if product.original_price %}
+              <span class="original-price">₹{{ product.original_price|floatformat:0 }}</span>
+            {% endif %}
+          </div>
+          <div class="card-actions">
+            <a href="{% url 'product_detail' product.id %}" class="btn btn-secondary">Details</a>
+            <button data-product-id="{{ product.id }}" class="btn btn-primary btn-add-to-cart-ajax">🛒 Add</button>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No popular products found.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

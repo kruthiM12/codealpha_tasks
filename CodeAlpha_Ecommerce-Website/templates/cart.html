@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart - IndianKart{% endblock %}
+
+{% block content %}
+
+<div class="section-header" style="margin-bottom: 20px;">
+  <h1 class="section-title">🛒 Your Shopping Cart ({{ item_count }} item{{ item_count|pluralize }})</h1>
+</div>
+
+{% if cart_items %}
+  <div class="cart-layout">
+    <!-- Cart Items List -->
+    <div class="cart-card">
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in cart_items %}
+            <tr>
+              <td>
+                <div class="cart-product-info">
+                  <img src="{{ item.product.image }}" alt="{{ item.product.name }}" class="cart-item-img">
+                  <div>
+                    <a href="{% url 'product_detail' item.product.id %}" class="cart-item-title">{{ item.product.name }}</a>
+                    <br>
+                    <form action="{% url 'cart_remove' item.product.id %}" method="POST" style="display: inline;">
+                      {% csrf_token %}
+                      <button type="submit" class="remove-btn">🗑️ Remove</button>
+                    </form>
+                  </div>
+                </div>
+              </td>
+              <td style="font-weight: 600;">₹{{ item.product.price|floatformat:0 }}</td>
+              <td>
+                <form action="{% url 'cart_update' %}" method="POST" style="display: flex; align-items: center; gap: 4px;">
+                  {% csrf_token %}
+                  <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                  <div class="qty-controls" style="transform: scale(0.9);">
+                    <button type="submit" name="action" value="decrease" class="qty-btn">-</button>
+                    <input type="text" name="quantity" value="{{ item.quantity }}" class="qty-input" readonly>
+                    <button type="submit" name="action" value="increase" class="qty-btn">+</button>
+                  </div>
+                </form>
+              </td>
+              <td style="font-weight: 800; color: var(--navy-dark);">₹{{ item.item_total|floatformat:0 }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="{% url 'products' %}" class="btn btn-secondary">
+          &larr; Continue Shopping
+        </a>
+      </div>
+    </div>
+
+    <!-- Order Summary Card -->
+    <div class="summary-card">
+      <h3 class="summary-title">Order Summary</h3>
+
+      {% if subtotal >= 499 %}
+        <div class="free-delivery-tag">
+          🎉 Congratulations! You qualified for FREE Delivery Across India!
+        </div>
+      {% else %}
+        <div class="free-delivery-tag" style="background-color: #FFF8E1; color: #B78103;">
+          💡 Add ₹{{ 499|add:"-subtotal"|default:100 }} more to get FREE Delivery!
+        </div>
+      {% endif %}
+
+      <div class="summary-row">
+        <span>Subtotal ({{ item_count }} items):</span>
+        <span style="font-weight: 600;">₹{{ subtotal|floatformat:0 }}</span>
+      </div>
+
+      <div class="summary-row">
+        <span>Delivery Charge:</span>
+        {% if delivery_fee == 0 %}
+          <span style="color: var(--green-success); font-weight: 700;">FREE</span>
+        {% else %}
+          <span>₹{{ delivery_fee|floatformat:0 }}</span>
+        {% endif %}
+      </div>
+
+      {% if discount > 0 %}
+        <div class="summary-row discount">
+          <span>Festive Discount Offer:</span>
+          <span>-₹{{ discount|floatformat:0 }}</span>
+        </div>
+      {% endif %}
+
+      <div class="summary-row summary-total">
+        <span>Final Total:</span>
+        <span style="color: var(--primary-saffron);">₹{{ total|floatformat:0 }}</span>
+      </div>
+
+      <a href="{% url 'checkout' %}" class="btn btn-primary btn-block btn-lg" style="margin-top: 20px; font-size: 1.05rem;">
+        Proceed to Checkout &rarr;
+      </a>
+
+      <div style="margin-top: 16px; font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+        🔒 Safe & Encrypted Checkout
+      </div>
+    </div>
+  </div>
+
+{% else %}
+  <div style="background: #FFFFFF; padding: 60px 20px; border-radius: var(--radius-lg); text-align: center; border: 1px solid var(--border-light);">
+    <p style="font-size: 3.5rem; margin-bottom: 16px;">🛒</p>
+    <h2 style="font-size: 1.5rem; margin-bottom: 8px;">Your Shopping Cart is Empty</h2>
+    <p style="color: var(--text-muted); margin-bottom: 24px;">Looks like you haven't added anything to your cart yet.</p>
+    <a href="{% url 'products' %}" class="btn btn-primary btn-lg">Start Shopping Now</a>
+  </div>
+{% endif %}
+
+{% endblock %}
